@@ -1,100 +1,113 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<title>Aurora Lava Form</title>
-<style>
-  html, body {
-    margin: 0;
-    padding: 0;
-    background: #9a9a9a;
-    overflow: hidden;
-  }
-  canvas {
-    display: block;
-  }
-</style>
+  <meta charset="UTF-8" />
+  <title>Aurora Lava Form</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      background: #9a9a9a; /* cambia a #000 si lo quieres negro */
+      overflow: hidden;
+      width: 100%;
+      height: 100%;
+    }
+    canvas {
+      display: block;
+    }
+  </style>
 </head>
 <body>
 
 <script type="module">
-import * as THREE from 'https://cdn.skypack.dev/three@0.152.2';
-import { OrbitControls } from 'https://cdn.skypack.dev/three@0.152.2/examples/jsm/controls/OrbitControls.js';
-import { MarchingCubes } from 'https://cdn.skypack.dev/three@0.152.2/examples/jsm/objects/MarchingCubes.js';
+  import * as THREE from 'https://cdn.skypack.dev/three@0.152.2';
+  import { OrbitControls } from 'https://cdn.skypack.dev/three@0.152.2/examples/jsm/controls/OrbitControls.js';
+  import { MarchingCubes } from 'https://cdn.skypack.dev/three@0.152.2/examples/jsm/objects/MarchingCubes.js';
 
-const scene = new THREE.Scene();
-scene.background = new THREE.Color(0x9a9a9a);
+  // ESCENA
+  const scene = new THREE.Scene();
+  scene.background = new THREE.Color(0x9a9a9a);
 
-const camera = new THREE.PerspectiveCamera(45, innerWidth / innerHeight, 0.1, 100);
-camera.position.set(0, 0, 6);
+  // CÁMARA
+  const camera = new THREE.PerspectiveCamera(
+    45,
+    window.innerWidth / window.innerHeight,
+    0.1,
+    100
+  );
+  camera.position.set(0, 0, 6);
 
-const renderer = new THREE.WebGLRenderer({ antialias: true });
-renderer.setSize(innerWidth, innerHeight);
-renderer.setPixelRatio(devicePixelRatio);
-document.body.appendChild(renderer.domElement);
+  // RENDERER
+  const renderer = new THREE.WebGLRenderer({ antialias: true });
+  renderer.setSize(window.innerWidth, window.innerHeight);
+  renderer.setPixelRatio(window.devicePixelRatio);
+  document.body.appendChild(renderer.domElement);
 
-// luces
-scene.add(new THREE.AmbientLight(0xffffff, 0.55));
+  // LUCES (clave para look lava / metal líquido)
+  scene.add(new THREE.AmbientLight(0xffffff, 0.55));
 
-const keyLight = new THREE.DirectionalLight(0xffffff, 1.2);
-keyLight.position.set(4, 6, 4);
-scene.add(keyLight);
+  const keyLight = new THREE.DirectionalLight(0xffffff, 1.2);
+  keyLight.position.set(4, 6, 4);
+  scene.add(keyLight);
 
-const rimLight = new THREE.DirectionalLight(0x6a7cff, 0.6);
-rimLight.position.set(-4, -2, 3);
-scene.add(rimLight);
+  const rimLight = new THREE.DirectionalLight(0x6a7cff, 0.6);
+  rimLight.position.set(-4, -2, 3);
+  scene.add(rimLight);
 
-// material lava
-const lavaMaterial = new THREE.MeshPhysicalMaterial({
-  color: 0x050507,
-  metalness: 1,
-  roughness: 0.12,
-  clearcoat: 1,
-  clearcoatRoughness: 0.08,
-  reflectivity: 1
-});
+  // MATERIAL LAVA (obsidiana líquida)
+  const lavaMaterial = new THREE.MeshPhysicalMaterial({
+    color: 0x050507,
+    metalness: 1,
+    roughness: 0.12,
+    clearcoat: 1,
+    clearcoatRoughness: 0.08,
+    reflectivity: 1
+  });
 
-// metaballs
-const resolution = 64;
-const lava = new MarchingCubes(resolution, lavaMaterial, true, true);
-lava.scale.set(2.4, 2.4, 2.4);
-scene.add(lava);
+  // METABALLS (LAVA ORGÁNICA)
+  const resolution = 64;
+  const lava = new MarchingCubes(resolution, lavaMaterial, true, true);
+  lava.scale.set(2.4, 2.4, 2.4);
+  scene.add(lava);
 
-function updateLava(t) {
-  lava.reset();
-  const strength = 0.65;
-  const subtract = 12;
+  function updateLava(t) {
+    lava.reset();
+    const strength = 0.65;
+    const subtract = 12;
 
-  for (let i = 0; i < 6; i++) {
-    const x = 0.5 + 0.28 * Math.sin(t + i);
-    const y = 0.5 + 0.28 * Math.cos(t * 0.7 + i);
-    const z = 0.5 + 0.28 * Math.sin(t * 0.4 + i);
-    lava.addBall(x, y, z, strength, subtract);
+    for (let i = 0; i < 6; i++) {
+      const x = 0.5 + 0.28 * Math.sin(t + i);
+      const y = 0.5 + 0.28 * Math.cos(t * 0.7 + i);
+      const z = 0.5 + 0.28 * Math.sin(t * 0.4 + i);
+      lava.addBall(x, y, z, strength, subtract);
+    }
   }
-}
 
-// controles
-const controls = new OrbitControls(camera, renderer.domElement);
-controls.enableDamping = true;
-controls.enableZoom = false;
-controls.autoRotate = true;
-controls.autoRotateSpeed = 0.3;
+  // CONTROLES (sensación de presencia)
+  const controls = new OrbitControls(camera, renderer.domElement);
+  controls.enableDamping = true;
+  controls.enableZoom = false;
+  controls.autoRotate = true;
+  controls.autoRotateSpeed = 0.3;
 
-function animate(time) {
-  requestAnimationFrame(animate);
-  updateLava(time * 0.0006);
-  lava.rotation.y += 0.0015;
-  lava.rotation.x += 0.0006;
-  controls.update();
-  renderer.render(scene, camera);
-}
-animate();
+  // LOOP
+  function animate(time) {
+    requestAnimationFrame(animate);
+    updateLava(time * 0.0006);
+    lava.rotation.y += 0.0015;
+    lava.rotation.x += 0.0006;
+    controls.update();
+    renderer.render(scene, camera);
+  }
+  animate();
 
-addEventListener('resize', () => {
-  camera.aspect = innerWidth / innerHeight;
-  camera.updateProjectionMatrix();
-  renderer.setSize(innerWidth, innerHeight);
-});
+  // RESIZE
+  window.addEventListener('resize', () => {
+    camera.aspect = window.innerWidth / window.innerHeight;
+    camera.updateProjectionMatrix();
+    renderer.setSize(window.innerWidth, window.innerHeight);
+  });
 </script>
 
 </body>
